@@ -20,40 +20,33 @@ namespace AuthGold.Controllers
     {
         private readonly Context _context;
         private readonly IRequestTrace _requestTrace;
+        private readonly IElapsedTime _elapsedtime;
 
-        public BookController(Context context, IRequestTrace requestTrace)
+        public BookController(Context context, IRequestTrace requestTrace, IElapsedTime elapsedtime)
         {
             _context = context;
             _requestTrace = requestTrace;
+            _elapsedtime = elapsedtime;
         }
 
         [HttpGet("")]
         public async Task<ActionResult<IEnumerable<BookDTO>>> GetBooks()
         {
-            var stopwatch = new Stopwatch();
+            var stopwatch = _elapsedtime.Open();
             stopwatch.Start();
 
             var response = await _context.Books
                 .Select(x => Converters.BookItemDTO(x))
                 .ToListAsync();
-            
-            stopwatch.Stop();
 
-            var elapsed_time = stopwatch.ElapsedMilliseconds;
-            TimeSpan t = TimeSpan.FromMilliseconds(elapsed_time);
-
-            var elapsedtime = string.Format("{0:D2}:{1:D2}:{2:D2}.{3:D3}",
-                                t.Hours,
-                                t.Minutes,
-                                t.Seconds,
-                                t.Milliseconds);
+            var elapsedtime = _elapsedtime.Close(stopwatch);
 
             await _requestTrace.Create(new RequestTrace
             {
                 id = Guid.NewGuid().ToString(),
                 address = UriHelper.GetDisplayUrl(Request),
                 clientCode = Guid.NewGuid().ToString(),
-                elapsedTime = t,
+                elapsedTime = elapsedtime,
                 httpMethod = Request.Method,
                 httpStatusCode = Response.StatusCode,
                 CreatedAt = DateTime.Now,
@@ -66,7 +59,9 @@ namespace AuthGold.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<BookDTO>> GetBook(string id)
         {
-            var stopwatch = new Stopwatch();
+            var stopwatch = _elapsedtime.Open();
+            stopwatch.Start();
+
             var bookItem = await _context.Books.FindAsync(id);
             
             if(bookItem == null)
@@ -74,26 +69,15 @@ namespace AuthGold.Controllers
                 return NotFound();
             }
 
-            stopwatch.Start();
-
             var response = Converters.BookItemDTO(bookItem);
-            stopwatch.Stop();
-
-            var elapsed_time = stopwatch.ElapsedMilliseconds;
-            TimeSpan t = TimeSpan.FromMilliseconds(elapsed_time);
-
-            var elapsedtime = string.Format("{0:D2}:{1:D2}:{2:D2}.{3:D3}",
-                                t.Hours,
-                                t.Minutes,
-                                t.Seconds,
-                                t.Milliseconds);
+            var elapsedtime = _elapsedtime.Close(stopwatch);
 
             await _requestTrace.Create(new RequestTrace
             {
                 id = Guid.NewGuid().ToString(),
                 address = UriHelper.GetDisplayUrl(Request),
                 clientCode = Guid.NewGuid().ToString(),
-                elapsedTime = t,
+                elapsedTime = elapsedtime,
                 httpMethod = Request.Method,
                 httpStatusCode = Response.StatusCode,
                 CreatedAt = DateTime.Now,
@@ -106,8 +90,9 @@ namespace AuthGold.Controllers
         [HttpPatch("{id}")]
         public async Task<ActionResult> PutBook(string id, [FromBody] BookDTO bookDTO)
         {
-            var stopwatch = new Stopwatch();
+            var stopwatch = _elapsedtime.Open();
             stopwatch.Start();
+
             var bookItem = await _context.Books.FindAsync(id);
             
             if(bookItem == null)
@@ -129,21 +114,14 @@ namespace AuthGold.Controllers
                 await _context.SaveChangesAsync();
                 stopwatch.Stop();
 
-                var elapsed_time = stopwatch.ElapsedMilliseconds;
-                TimeSpan t = TimeSpan.FromMilliseconds(elapsed_time);
-
-                var elapsedtime = string.Format("{0:D2}:{1:D2}:{2:D2}.{3:D3}",
-                                    t.Hours,
-                                    t.Minutes,
-                                    t.Seconds,
-                                    t.Milliseconds);
+                var elapsedtime = _elapsedtime.Close(stopwatch);
 
                 await _requestTrace.Create(new RequestTrace
                 {
                     id = Guid.NewGuid().ToString(),
                     address = UriHelper.GetDisplayUrl(Request),
                     clientCode = Guid.NewGuid().ToString(),
-                    elapsedTime = t,
+                    elapsedTime = elapsedtime,
                     httpMethod = Request.Method,
                     httpStatusCode = Response.StatusCode,
                     CreatedAt = DateTime.Now,
@@ -160,8 +138,10 @@ namespace AuthGold.Controllers
         [HttpPost("")]
         public async Task<ActionResult<BookDTO>> PostBook(BookDTO bookDTO)
         {
+            var stopwatch = _elapsedtime.Open();
+            stopwatch.Start();
+
             var secret = "KEY-asdfajg65h54fgjhlk";
-            var stopwatch = new Stopwatch();
             var bookItem = new Book
             {
                 ID = bookDTO.ID,
@@ -172,26 +152,17 @@ namespace AuthGold.Controllers
 
             if(ModelState.IsValid)
             {
-                stopwatch.Start();
                 _context.Books.Add(bookItem);
                 await _context.SaveChangesAsync();
-                stopwatch.Stop();
 
-                var elapsed_time = stopwatch.ElapsedMilliseconds;
-                TimeSpan t = TimeSpan.FromMilliseconds(elapsed_time);
-
-                var elapsedtime = string.Format("{0:D2}:{1:D2}:{2:D2}.{3:D3}",
-                                    t.Hours,
-                                    t.Minutes,
-                                    t.Seconds,
-                                    t.Milliseconds);
+                var elapsedtime = _elapsedtime.Close(stopwatch);
 
                 await _requestTrace.Create(new RequestTrace
                 {
                     id = Guid.NewGuid().ToString(),
                     address = UriHelper.GetDisplayUrl(Request),
                     clientCode = Guid.NewGuid().ToString(),
-                    elapsedTime = t,
+                    elapsedTime = elapsedtime,
                     httpMethod = Request.Method,
                     httpStatusCode = Response.StatusCode,
                     CreatedAt = DateTime.Now,
@@ -207,34 +178,25 @@ namespace AuthGold.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBook(string id)
         {
+            var stopwatch = _elapsedtime.Open();
+            stopwatch.Start();
             var bookItem = await _context.Books.FindAsync(id);
             if(bookItem == null)
             {
                 return BadRequest();
             }
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-
+            
             _context.Books.Remove(bookItem);
             await _context.SaveChangesAsync();
 
-            stopwatch.Stop();
-
-            var elapsed_time = stopwatch.ElapsedMilliseconds;
-            TimeSpan t = TimeSpan.FromMilliseconds(elapsed_time);
-
-            var elapsedtime = string.Format("{0:D2}:{1:D2}:{2:D2}.{3:D3}",
-                                t.Hours,
-                                t.Minutes,
-                                t.Seconds,
-                                t.Milliseconds);
+            var elapsedtime = _elapsedtime.Close(stopwatch);
 
             await _requestTrace.Create(new RequestTrace
             {
                 id = Guid.NewGuid().ToString(),
                 address = UriHelper.GetDisplayUrl(Request),
                 clientCode = Guid.NewGuid().ToString(),
-                elapsedTime = t,
+                elapsedTime = elapsedtime,
                 httpMethod = Request.Method,
                 httpStatusCode = Response.StatusCode,
                 CreatedAt = DateTime.Now,
