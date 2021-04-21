@@ -20,7 +20,6 @@ namespace AuthGold.Controllers
                 Id = customerItem.Id,
                 FirstName = customerItem.FirstName,
                 LastName = customerItem.LastName,
-                Cpf = customerItem.Cpf,
                 BuyAmout = customerItem.BuyAmout
             };
 

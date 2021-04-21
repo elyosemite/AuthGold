@@ -1,6 +1,7 @@
 ﻿using AuthGold.Models;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace AuthGold.Database
 {
     public class Context : DbContext
@@ -10,5 +11,6 @@ namespace AuthGold.Database
 
         public DbSet<Book> Books { get; set; }
         public DbSet<Customer> Customers { get; set; }
+        public DbSet<RequestTrace> RequestTrace { get; set; }
     }
 }

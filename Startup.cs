@@ -5,6 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using AuthGold.Database;
 using Microsoft.EntityFrameworkCore;
+using AuthGold.Contracts;
+using AuthGold.Models;
+using AuthGold.Providers;
 
 namespace AuthGold
 {
@@ -20,11 +23,13 @@ namespace AuthGold
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
-
             var connection = Configuration.GetConnectionString("DefaultConnectionMySQL");
+            
             services.AddDbContext<Context>(options => options.UseMySql(connection, ServerVersion.AutoDetect(connection)));
             
+            services.AddTransient<IRequestTrace, RequestTraceProvider>();
+
+            services.AddControllers();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -43,7 +48,7 @@ namespace AuthGold
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllerRoute("default", "{controller=Book}/{action=Index}");
+                endpoints.MapControllerRoute("default", "{controller=RequesTrace}/{action=Index}");
             });
         }
     }
