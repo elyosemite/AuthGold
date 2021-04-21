@@ -7,23 +7,23 @@ using Microsoft.AspNetCore.Mvc;
 namespace AuthGold.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    public class RequesTraceController : ControllerBase
+    [Route("api/v1/[controller]")]
+    public class RequestTraceController : ControllerBase
     {
         private readonly IRequestTrace _requestTrace;
-        public RequesTraceController([FromServices] IRequestTrace requestTrace)
+        public RequestTraceController([FromServices] IRequestTrace requestTrace)
         {
             _requestTrace = requestTrace;
         }
 
-        [HttpGet("/api/RequestTrace")]
+        [HttpGet("")]
         public async Task<ActionResult<IEnumerable<RequestTrace>>> GetCustomers()
         {
             var response = await _requestTrace.GetAll();
             return Ok(response);
         }
 
-        [HttpPost("/api/RequestTrace")]
+        [HttpPost("")]
         public async Task<ActionResult<RequestTrace>> AddRequestTrace([FromBody] RequestTrace requestTrace)
         {
             try

@@ -22,7 +22,7 @@ namespace AuthGold.Models
 
         [Required(ErrorMessage="This field is required")]
         [DataType(DataType.Duration)]
-        public string elapsedTime { get; set; }
+        public TimeSpan elapsedTime { get; set; }
 
         [Required(ErrorMessage="This field is required")]
         public DateTime CreatedAt { get; set; }
