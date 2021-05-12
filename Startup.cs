@@ -29,6 +29,7 @@ namespace AuthGold
             
             services.AddTransient<IRequestTrace, RequestTraceProvider>();
             services.AddTransient<IElapsedTime, ElapsedTimeProvider>();
+            services.AddTransient<ICustomer, CustomerProvider>();
 
             services.AddControllers();
         }
