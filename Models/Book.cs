@@ -1,5 +1,6 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
+using AuthGold.Contracts;
 
 namespace AuthGold.Models
 {

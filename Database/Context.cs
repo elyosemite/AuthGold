@@ -1,7 +1,6 @@
 ﻿using AuthGold.Models;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace AuthGold.Database
 {
     public class Context : DbContext

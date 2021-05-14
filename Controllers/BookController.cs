@@ -41,7 +41,7 @@ namespace AuthGold.Controllers
 
             var elapsedtime = _elapsedtime.Close(stopwatch);
 
-            await _requestTrace.Create(new RequestTrace
+            var reqTrace = new RequestTrace
             {
                 id = Guid.NewGuid().ToString(),
                 address = UriHelper.GetDisplayUrl(Request),
@@ -51,8 +51,13 @@ namespace AuthGold.Controllers
                 httpStatusCode = Response.StatusCode,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now
-            });
+            };
 
+            await _requestTrace.Create(reqTrace);
+
+            var writeJsonProvider = new WriteJsonProvider();
+            writeJsonProvider.WriteJson("C:\\Users\\Patricia\\Documents\\RequestTrace.yur", reqTrace);
+            
             return response;
         }
 
