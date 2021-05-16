@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using AuthGold.Contracts;
 using AuthGold.Models;
 using AuthGold.Providers;
+using AuthGold.Filters;
 
 namespace AuthGold
 {
@@ -30,6 +31,13 @@ namespace AuthGold
             services.AddTransient<IRequestTrace, RequestTraceProvider>();
             services.AddTransient<IElapsedTime, ElapsedTimeProvider>();
             services.AddTransient<ICustomer, CustomerProvider>();
+            services.AddTransient<IJsonManipulate, WriteJsonProvider>();
+            services.AddTransient<IAESEncryptation, AESEncryptProvider>();
+            services.AddTransient<AnythingFilter>();
+            services.AddMvc(options =>
+            {
+                options.Filters.AddService<AnythingFilter>();
+            });
 
             services.AddControllers();
         }

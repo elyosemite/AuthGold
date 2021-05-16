@@ -12,7 +12,9 @@ namespace AuthGold.Providers
     {
         private readonly Context _context;
 
-        public CustomerProvider(Context context)
+        public CustomerProvider(
+            Context context
+        )
         {
             _context = context;
         }
