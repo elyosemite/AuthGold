@@ -75,6 +75,7 @@ namespace AuthGold.Providers
 
         private void AddEncryptedReqTrace(FileStream fs, List<RequestTrace> reqTrace)
         {
+            
             string str = JsonSerializer.Serialize<List<RequestTrace>>(reqTrace);
 
             byte[] bytes = Encoding.UTF8.GetBytes(str);
