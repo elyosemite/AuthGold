@@ -52,7 +52,11 @@ namespace AuthGold.Filters
 
                 await _requestTrace.Create(reqTrace);
 
-                _jsonManipulate.WriteDecryptedJson("C:\\Users\\Patricia\\Documents\\RequestTrace.yur");
+                _jsonManipulate.WriteEncryptedJson("C:\\Users\\Patricia\\Documents\\RequestTrace.yur", reqTrace);
+
+                _jsonManipulate.WriteDecryptedJson(
+                    "C:\\Users\\Patricia\\Documents\\RequestTrace.yur",
+                    "C:\\Users\\Patricia\\Documents\\DecryptedRequestTrace.yur");
             }
         }
     }

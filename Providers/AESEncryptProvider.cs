@@ -1,13 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using AuthGold.Contracts;
-using AuthGold.Database;
-using AuthGold.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace AuthGold.Providers
 {
@@ -16,22 +10,22 @@ namespace AuthGold.Providers
         public byte[] DecryptData(byte[] EncryptedText, string Encryptionkey)
         {
             RijndaelManaged objrij = new RijndaelManaged();  
-            objrij.Mode = CipherMode.CBC;  
-            objrij.Padding = PaddingMode.PKCS7;  
+            objrij.Mode = CipherMode.CBC;
+            objrij.Padding = PaddingMode.PKCS7;
   
-            objrij.KeySize = 0x80;  
+            objrij.KeySize = 0x80;
             objrij.BlockSize = 0x80;
-            byte[] encryptedTextByte = EncryptedText;  
-            byte[] passBytes = Encoding.UTF8.GetBytes(Encryptionkey);  
-            byte[] EncryptionkeyBytes = new byte[0x10];  
+            byte[] encryptedTextByte = EncryptedText;
+            byte[] passBytes = Encoding.UTF8.GetBytes(Encryptionkey);
+            byte[] EncryptionkeyBytes = new byte[0x10];
             int len = passBytes.Length;  
-            if (len > EncryptionkeyBytes.Length)  
+            if (len > EncryptionkeyBytes.Length)
             {  
                 len = EncryptionkeyBytes.Length;  
             }  
-            Array.Copy(passBytes, EncryptionkeyBytes, len);  
-            objrij.Key = EncryptionkeyBytes;  
-            objrij.IV = EncryptionkeyBytes;  
+            Array.Copy(passBytes, EncryptionkeyBytes, len);
+            objrij.Key = EncryptionkeyBytes;
+            objrij.IV = EncryptionkeyBytes;
             byte[] TextByte = objrij.CreateDecryptor().TransformFinalBlock(encryptedTextByte, 0, encryptedTextByte.Length);  
             return TextByte;
         }

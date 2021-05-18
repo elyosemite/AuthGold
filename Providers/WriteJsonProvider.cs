@@ -9,6 +9,7 @@ namespace AuthGold.Providers
 {
     public class WriteJsonProvider : IJsonManipulate
     {
+        public string key = "28B20FC2E5D6731C";
 
         private readonly IAESEncryptation _aes;
         public WriteJsonProvider(IAESEncryptation aes)
@@ -20,10 +21,16 @@ namespace AuthGold.Providers
         {
             if(File.Exists(filepath))
             {
+                byte[] encryptedData = BringBytes(filepath);
+                byte[] decryptedData = DecryptedReqTrace(encryptedData);
+                string dataInString = Convert.ToBase64String(decryptedData);
+                //Console.WriteLine(dataInString);
+                RequestTrace requestTrace = JsonSerializer.Deserialize<RequestTrace>(dataInString);
+
                 using(FileStream fs = File.Open(filepath, FileMode.Open))
                 {
                     fs.Seek(0, SeekOrigin.End);
-                    AddEncryptedReqTrace(fs, reqTrace);
+                    AddEncryptedReqTrace(fs, requestTrace);
                 }
             }
             else
@@ -34,17 +41,28 @@ namespace AuthGold.Providers
                 }
             }
         }
+        public byte[] BringBytes(string filepath)
+        {
+            byte[] bytes;
+            using(FileStream fs = File.Open(filepath, FileMode.Open))
+            {
+                bytes = new byte[fs.Length];
+                fs.Read(bytes, 0, bytes.Length);
+            }
+            return bytes;
+        }
 
-        public void WriteDecryptedJson(string filepath)
+        public void WriteDecryptedJson(string filepath, string outputFilePath)
         {
             if(File.Exists(filepath))
             {
-                using(FileStream fs = File.Open(filepath, FileMode.Open))
+                byte[] bytes = BringBytes(filepath);
+                using(FileStream fs = File.Create(outputFilePath))
                 {
-                    Console.WriteLine("Entrei no arquivo...");
-                    byte[] bytes = new byte[fs.Length-1];
-                    fs.Read(bytes, 0, bytes.Length);
-                    Console.WriteLine(BitConverter.ToString(bytes[0..1024]));
+                    byte[] decryptedData = DecryptedReqTrace(bytes);
+                    Console.WriteLine(Convert.ToBase64String(decryptedData));
+                    fs.Write(decryptedData, 0, decryptedData.Length);
+                    Console.WriteLine("Estágio 5");
                 }
             }
             else {
@@ -54,24 +72,18 @@ namespace AuthGold.Providers
 
         private void AddEncryptedReqTrace(FileStream fs, RequestTrace reqTrace)
         {
-            string str = $"{JsonSerializer.Serialize(reqTrace)}\n";
-            string key = "28B20FC2E5D6731C";
+            string str = $"{JsonSerializer.Serialize<RequestTrace>(reqTrace)}\n";
 
-            byte[] bytes = Encoding.Unicode.GetBytes(str);
+            byte[] bytes = Encoding.UTF8.GetBytes(str);
 
             byte[] encryptedBytes = _aes.EncryptData(bytes, key);
-            fs.Write(encryptedBytes, 0, bytes.Length);
+            
+            fs.Write(encryptedBytes, 0, encryptedBytes.Length);
         }
 
-        private void AddDecryptedReqTrace(FileStream fs, RequestTrace reqTrace)
+        private byte[] DecryptedReqTrace(byte[] encryptedData)
         {
-            string str = $"{JsonSerializer.Serialize(reqTrace)}\n";
-            string key = "28B20FC2E5D6731C";
-
-            byte[] bytes = Encoding.Unicode.GetBytes(str);
-
-            byte[] encryptedBytes = _aes.EncryptData(bytes, key);
-            fs.Write(encryptedBytes, 0, bytes.Length);
+            return _aes.DecryptData(encryptedData, key);
         }
     }
 }
