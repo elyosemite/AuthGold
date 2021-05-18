@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 
 namespace AuthGold.Models
 {
@@ -29,5 +30,10 @@ namespace AuthGold.Models
         
         [Required(ErrorMessage="This field is required")]
         public DateTime UpdatedAt { get; set; }
+
+        public override string ToString()
+        {
+            return JsonSerializer.Serialize<RequestTrace>(this);
+        }
     }
 }
