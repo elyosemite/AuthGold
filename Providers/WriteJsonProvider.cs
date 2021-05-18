@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.Json;
@@ -21,23 +22,27 @@ namespace AuthGold.Providers
         {
             if(File.Exists(filepath))
             {
+                var requestTraces = new List<RequestTrace>();
+
                 byte[] encryptedData = BringBytes(filepath);
                 byte[] decryptedData = DecryptedReqTrace(encryptedData);
-                string dataInString = Convert.ToBase64String(decryptedData);
-                //Console.WriteLine(dataInString);
-                RequestTrace requestTrace = JsonSerializer.Deserialize<RequestTrace>(dataInString);
+                string dataInString = Encoding.UTF8.GetString(decryptedData);
+                
+                var requestTrace1 = JsonSerializer.Deserialize<List<RequestTrace>>(dataInString);
+                requestTrace1.Add(reqTrace);
 
                 using(FileStream fs = File.Open(filepath, FileMode.Open))
                 {
-                    fs.Seek(0, SeekOrigin.End);
-                    AddEncryptedReqTrace(fs, requestTrace);
+                    AddEncryptedReqTrace(fs, requestTrace1);
                 }
             }
             else
             {
+                var rt = new List<RequestTrace>();
+                rt.Add(reqTrace);
                 using(FileStream fs = File.Create(filepath))
                 {
-                    AddEncryptedReqTrace(fs, reqTrace);
+                    AddEncryptedReqTrace(fs, rt);
                 }
             }
         }
@@ -60,9 +65,7 @@ namespace AuthGold.Providers
                 using(FileStream fs = File.Create(outputFilePath))
                 {
                     byte[] decryptedData = DecryptedReqTrace(bytes);
-                    Console.WriteLine(Convert.ToBase64String(decryptedData));
                     fs.Write(decryptedData, 0, decryptedData.Length);
-                    Console.WriteLine("Estágio 5");
                 }
             }
             else {
@@ -70,12 +73,11 @@ namespace AuthGold.Providers
             }
         }
 
-        private void AddEncryptedReqTrace(FileStream fs, RequestTrace reqTrace)
+        private void AddEncryptedReqTrace(FileStream fs, List<RequestTrace> reqTrace)
         {
-            string str = $"{JsonSerializer.Serialize<RequestTrace>(reqTrace)}\n";
+            string str = JsonSerializer.Serialize<List<RequestTrace>>(reqTrace);
 
             byte[] bytes = Encoding.UTF8.GetBytes(str);
-
             byte[] encryptedBytes = _aes.EncryptData(bytes, key);
             
             fs.Write(encryptedBytes, 0, encryptedBytes.Length);
