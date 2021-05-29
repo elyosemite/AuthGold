@@ -20,7 +20,7 @@
     "AuthGold": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "api/v1",
+      "launchUrl": "api/v1/book",
       "applicationUrl": "http://localhost:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
