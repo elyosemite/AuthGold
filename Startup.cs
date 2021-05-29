@@ -28,6 +28,8 @@ namespace AuthGold
             
             services.AddDbContext<Context>(options => options.UseMySql(connection, ServerVersion.AutoDetect(connection)));
             
+            services.AddSingleton<IConfiguration>(Configuration);
+
             services.AddTransient<IRequestTrace, RequestTraceProvider>();
             services.AddTransient<IElapsedTime, ElapsedTimeProvider>();
             services.AddTransient<ICustomer, CustomerProvider>();
