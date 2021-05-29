@@ -31,7 +31,7 @@ namespace AuthGold.Providers
                 var requestTrace1 = JsonSerializer.Deserialize<List<RequestTrace>>(dataInString);
                 requestTrace1.Add(reqTrace);
 
-                using(FileStream fs = File.Open(filepath, FileMode.Open))
+                using(FileStream fs = File.Open(filepath, FileMode.Open, FileAccess.Write, FileShare.None))
                 {
                     AddEncryptedReqTrace(fs, requestTrace1);
                 }
@@ -68,14 +68,14 @@ namespace AuthGold.Providers
                     fs.Write(decryptedData, 0, decryptedData.Length);
                 }
             }
-            else {
+            else 
+            {
                 Console.WriteLine("Arquivo não existe.");
             }
         }
 
         private void AddEncryptedReqTrace(FileStream fs, List<RequestTrace> reqTrace)
         {
-            
             string str = JsonSerializer.Serialize<List<RequestTrace>>(reqTrace);
 
             byte[] bytes = Encoding.UTF8.GetBytes(str);
@@ -87,6 +87,29 @@ namespace AuthGold.Providers
         private byte[] DecryptedReqTrace(byte[] encryptedData)
         {
             return _aes.DecryptData(encryptedData, key);
+        }
+
+        public static async void CreateFile(string filepath)
+        {
+            // Create
+            if(!File.Exists(filepath))
+            {
+                byte[] bytesToWrite = Encoding.Unicode.GetBytes("Yuri dos Santos Melo");
+                using(FileStream flst = File.Create(filepath))
+                {
+                    await flst.WriteAsync(bytesToWrite, 0, bytesToWrite.Length);
+                }
+            }
+            else
+            {
+                // Open and Write
+
+                byte[] bytesToWrite2 = Encoding.Unicode.GetBytes("\nIgor dos Santos Melo");
+                using(FileStream fs = File.Open(filepath, FileMode.Append, FileAccess.Write))
+                {
+                    await fs.WriteAsync(bytesToWrite2, 0, bytesToWrite2.Length);
+                }
+            }
         }
     }
 }
