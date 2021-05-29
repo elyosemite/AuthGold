@@ -8,6 +8,7 @@ using AuthGold.Contracts;
 using AuthGold.Database;
 using AuthGold.DTO;
 using AuthGold.Models;
+using AuthGold.Providers;
 
 namespace AuthGold.Controllers
 {
@@ -39,6 +40,8 @@ namespace AuthGold.Controllers
             var response = await _context.Books
                 .Select(x => Converters.BookItemDTO(x))
                 .ToListAsync();
+            
+            WriteJsonProvider.CreateFile(@"C:\Users\Patricia\Documents\Teste.y");
 
             return response;
         }
