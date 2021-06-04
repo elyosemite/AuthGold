@@ -6,25 +6,28 @@ using AuthGold.Models;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Configuration;
 
 namespace AuthGold.Filters
 {
     public class AnythingFilter : IAsyncActionFilter
     {
-
         private readonly IElapsedTime _elapsedtime;
         private readonly IJsonManipulate _jsonManipulate;
         private readonly IRequestTrace _requestTrace;
         private Stopwatch Stopwatch { get; set; }
+        private readonly IConfiguration _configuration;
         public AnythingFilter(
             IElapsedTime elapsedTime,
             IJsonManipulate jsonManipulate,
-            IRequestTrace requestTrace
+            IRequestTrace requestTrace,
+            IConfiguration configuration
         )
         {
             _elapsedtime = elapsedTime;
             _jsonManipulate = jsonManipulate;
             _requestTrace = requestTrace;
+            _configuration = configuration;
         }
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -52,11 +55,19 @@ namespace AuthGold.Filters
 
                 await _requestTrace.Create(reqTrace);
 
-                _jsonManipulate.WriteEncryptedJson("C:\\Users\\Patricia\\Documents\\RequestTrace.yur", reqTrace);
+                /* For Encrypting */
+                string filePathForEncrypt = _configuration.GetSection("FileConfigSession").GetSection("FilePathForEncrypt").Value;
+                string fileNameForEncrypt = _configuration.GetSection("FileConfigSession").GetSection("FileNameForEncrypt").Value;
+
+                /* For Decrypting */
+                string filePathForDecrypt = _configuration.GetSection("FileConfigSession").GetSection("FilePathForDecrypt").Value;
+                string fileNameForDecrypt = _configuration.GetSection("FileConfigSession").GetSection("FileNameForDecrypt").Value;
+
+                _jsonManipulate.WriteEncryptedJson($"{filePathForEncrypt}\\{fileNameForEncrypt}", reqTrace);
 
                 _jsonManipulate.WriteDecryptedJson(
-                    "C:\\Users\\Patricia\\Documents\\RequestTrace.yur",
-                    "C:\\Users\\Patricia\\Documents\\DecryptedRequestTrace.yur");
+                    $"{filePathForEncrypt}\\{fileNameForEncrypt}",
+                    $"{filePathForDecrypt}\\{fileNameForDecrypt}");
             }
         }
     }
