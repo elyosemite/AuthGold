@@ -5,17 +5,20 @@ using System.Text;
 using System.Text.Json;
 using AuthGold.Contracts;
 using AuthGold.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace AuthGold.Providers
 {
     public class WriteJsonProvider : IJsonManipulate
     {
-        public string key = "28B20FC2E5D6731C";
-
+        public string key { get; set; }
         private readonly IAESEncryptation _aes;
-        public WriteJsonProvider(IAESEncryptation aes)
+        private readonly IConfiguration _configuration;
+        public WriteJsonProvider(IAESEncryptation aes, IConfiguration configuration)
         {
             _aes = aes;
+            _configuration = configuration;
+            key = _configuration.GetSection("SecuritySession").GetSection("SecretKey").Value;
         }
 
         public void WriteEncryptedJson(string filepath, RequestTrace reqTrace)
@@ -77,6 +80,7 @@ namespace AuthGold.Providers
         private void AddEncryptedReqTrace(FileStream fs, List<RequestTrace> reqTrace)
         {
             string str = JsonSerializer.Serialize<List<RequestTrace>>(reqTrace);
+
 
             byte[] bytes = Encoding.UTF8.GetBytes(str);
             byte[] encryptedBytes = _aes.EncryptData(bytes, key);
