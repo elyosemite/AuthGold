@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.ComponentModel.DataAnnotations;
 using AuthGold.Contracts;
 
@@ -15,5 +16,7 @@ namespace AuthGold.Models
         [MaxLength(25)]
         [MinLength(25)]
         public string Secret { get; set; }
+        public DateTime CreatedAt { get;set; }
+        public DateTime UpdatedAt { get;set; }
     }
 }
