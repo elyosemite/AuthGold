@@ -9,6 +9,7 @@ using AuthGold.Database;
 using AuthGold.DTO;
 using AuthGold.Models;
 using AuthGold.Providers;
+using Microsoft.Extensions.Configuration;
 
 namespace AuthGold.Controllers
 {
@@ -20,18 +21,21 @@ namespace AuthGold.Controllers
         private readonly IRequestTrace _requestTrace;
         private readonly IElapsedTime _elapsedtime;
         private readonly IJsonManipulate _jsonManipulate;
+        private readonly IConfiguration _configuration;
 
         public BookController(
             Context context,
             IRequestTrace requestTrace,
             IElapsedTime elapsedtime,
-            IJsonManipulate jsonManipulate
+            IJsonManipulate jsonManipulate,
+            IConfiguration configuration
         )
         {
             _context = context;
             _requestTrace = requestTrace;
             _elapsedtime = elapsedtime;
             _jsonManipulate = jsonManipulate;
+            _configuration = configuration;
         }
 
         [HttpGet("")]
@@ -40,8 +44,8 @@ namespace AuthGold.Controllers
             var response = await _context.Books
                 .Select(x => Converters.BookItemDTO(x))
                 .ToListAsync();
-            
-            WriteJsonProvider.CreateFile(@"C:\Users\Patricia\Documents\Teste.y");
+
+            WriteJsonProvider.CreateFile(@"C:\Users\YuriMelo\Documents\Teste.y");
 
             return response;
         }
@@ -93,14 +97,18 @@ namespace AuthGold.Controllers
         [HttpPost("")]
         public async Task<ActionResult<BookDTO>> PostBook(BookDTO bookDTO)
         {
-            var secret = "KEY-asdfajg65h54fgjhlk";
+            var key = _configuration.GetSection("SecuritySession").GetSection("KeyForBookResource").Value;
+            var secret = MD5Provider.GetMD5Hash(key);
+
             var Id = Guid.NewGuid().ToString();
             var bookItem = new Book
             {
                 ID = Id,
                 Name = bookDTO.Name,
                 Author = bookDTO.Author,
-                Secret = secret
+                Secret = secret,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
             };
 
             if(ModelState.IsValid)
