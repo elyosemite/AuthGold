@@ -37,7 +37,7 @@ namespace AuthGold.Providers
             for (int i = 0; i < times; i++)
             {
                 generatedBytesFromKey = hashAlgorithm.ComputeHash(generatedBytesFromKey);
-                Console.WriteLine(ShowByte(generatedBytesFromKey));
+                //Console.WriteLine(ShowByte(generatedBytesFromKey));
             }
 
             return generatedBytesFromKey;

@@ -45,8 +45,9 @@ namespace AuthGold.Controllers
                 .Select(x => Converters.BookItemDTO(x))
                 .ToListAsync();
 
-            WriteJsonProvider.CreateFile(@"C:\Users\YuriMelo\Documents\Teste.y");
-
+            // Testing PDF files
+            //FileProvider.GetInfoPDF(@"C:\Users\YuriMelo\Desktop\pdfs\Curso de Assembly RBT - 1994 - Frederico Lamberti Pissarra.pdf");
+            
             return response;
         }
 
