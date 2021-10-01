@@ -14,6 +14,7 @@ namespace AuthGold.Providers
         public string key { get; set; }
         private readonly IAESEncryptation _aes;
         private readonly IConfiguration _configuration;
+        
         public WriteJsonProvider(IAESEncryptation aes, IConfiguration configuration)
         {
             _aes = aes;
